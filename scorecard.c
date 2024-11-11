@@ -13,9 +13,9 @@ typedef struct {
 } Candidate;
 
 void initializeCandidates(Candidate candidates[]);
-void inputScores(Candidate candidates[], const char *judgeName, const char *expertise);
+void inputScores(Candidate candidates[], const char* judgeName, const char* expertise);
 void displayScores(const Candidate candidates[]);
-int findCandidateIndexById(const Candidate candidates[], const char *id);
+int findCandidateIndexById(const Candidate candidates[], const char* id);
 void modifyScores(Candidate candidates[]);
 void calculateTotalScores(Candidate candidates[]);
 void displayFinalSelection(const Candidate candidates[]);
@@ -34,9 +34,9 @@ int main() {
         printf("####################################\n");
 
         printf("> 심사자 이름: ");
-        scanf("%s", judgeName);
+        scanf_s("%49s", judgeName, (unsigned)sizeof(judgeName));
         printf("> 전문 분야 (음악/댄스/보컬/비주얼/전달력): ");
-        scanf("%s", expertise);
+        scanf_s("%19s", expertise, (unsigned)sizeof(expertise));
 
         inputScores(candidates, judgeName, expertise);
 
@@ -44,12 +44,13 @@ int main() {
         displayScores(candidates);
 
         printf("제출하시겠습니까? (Y/N): ");
-        scanf(" %c", &submitChoice);
+        scanf_s(" %c", &submitChoice, 1);
 
         if (submitChoice == 'Y' || submitChoice == 'y') {
             printf("***최종 제출을 완료했습니다.***\n");
             break;
-        } else if (submitChoice == 'N' || submitChoice == 'n') {
+        }
+        else if (submitChoice == 'N' || submitChoice == 'n') {
             modifyScores(candidates);
         }
     }
@@ -61,26 +62,24 @@ int main() {
 }
 
 void initializeCandidates(Candidate candidates[]) {
-    // 초기 후보자 설정 예시
-    strcpy(candidates[0].name, "박지연");
-    strcpy(candidates[0].id, "000001");
+    strcpy_s(candidates[0].name, sizeof(candidates[0].name), "박지연");
+    strcpy_s(candidates[0].id, sizeof(candidates[0].id), "000001");
 
-    strcpy(candidates[1].name, "Ethan Smith");
-    strcpy(candidates[1].id, "000002");
+    strcpy_s(candidates[1].name, sizeof(candidates[1].name), "Ethan Smith");
+    strcpy_s(candidates[1].id, sizeof(candidates[1].id), "000002");
 
-    strcpy(candidates[2].name, "Helena Silva");
-    strcpy(candidates[2].id, "000003");
+    strcpy_s(candidates[2].name, sizeof(candidates[2].name), "Helena Silva");
+    strcpy_s(candidates[2].id, sizeof(candidates[2].id), "000003");
 
-    strcpy(candidates[3].name, "Liam Wilson");
-    strcpy(candidates[3].id, "000004");
+    strcpy_s(candidates[3].name, sizeof(candidates[3].name), "Liam Wilson");
+    strcpy_s(candidates[3].id, sizeof(candidates[3].id), "000004");
 
-    strcpy(candidates[4].name, "Sophia Kim");
-    strcpy(candidates[4].id, "000005");
+    strcpy_s(candidates[4].name, sizeof(candidates[4].name), "Sophia Kim");
+    strcpy_s(candidates[4].id, sizeof(candidates[4].id), "000005");
 
-    strcpy(candidates[5].name, "Daniel Chen");
-    strcpy(candidates[5].id, "000006");
+    strcpy_s(candidates[5].name, sizeof(candidates[5].name), "Daniel Chen");
+    strcpy_s(candidates[5].id, sizeof(candidates[5].id), "000006");
 
-    // 점수 초기화
     for (int i = 0; i < CANDIDATES; i++) {
         for (int j = 0; j < FIELDS; j++) {
             candidates[i].scores[j] = 0;
@@ -89,7 +88,7 @@ void initializeCandidates(Candidate candidates[]) {
     }
 }
 
-void inputScores(Candidate candidates[], const char *judgeName, const char *expertise) {
+void inputScores(Candidate candidates[], const char* judgeName, const char* expertise) {
     int fieldIndex;
     if (strcmp(expertise, "음악") == 0) fieldIndex = 0;
     else if (strcmp(expertise, "댄스") == 0) fieldIndex = 1;
@@ -105,7 +104,7 @@ void inputScores(Candidate candidates[], const char *judgeName, const char *expe
         int score;
         do {
             printf("후보자: %s\n%s: ", candidates[i].name, expertise);
-            scanf("%d", &score);
+            scanf_s("%d", &score);
             if (score < 10 || score > MAX_SCORE) {
                 printf("잘못된 값입니다. 10에서 100 사이의 점수를 입력하세요.\n");
             }
@@ -126,7 +125,7 @@ void displayScores(const Candidate candidates[]) {
     printf("------------------------------------\n");
 }
 
-int findCandidateIndexById(const Candidate candidates[], const char *id) {
+int findCandidateIndexById(const Candidate candidates[], const char* id) {
     for (int i = 0; i < CANDIDATES; i++) {
         if (strcmp(candidates[i].id, id) == 0) {
             return i;
@@ -141,7 +140,7 @@ void modifyScores(Candidate candidates[]) {
 
     while (1) {
         printf("수정할 후보자의 ID를 입력하세요 (종료하려면 'exit' 입력): ");
-        scanf("%s", id);
+        scanf_s("%6s", id, (unsigned)sizeof(id));
         if (strcmp(id, "exit") == 0) break;
 
         int candidateIndex = findCandidateIndexById(candidates, id);
@@ -151,11 +150,11 @@ void modifyScores(Candidate candidates[]) {
         }
 
         printf("수정할 분야 (0:음악, 1:댄스, 2:보컬, 3:비주얼, 4:전달력): ");
-        scanf("%d", &fieldIndex);
+        scanf_s("%d", &fieldIndex);
 
         do {
             printf("새 점수 (10~100): ");
-            scanf("%d", &newScore);
+            scanf_s("%d", &newScore);
             if (newScore < 10 || newScore > MAX_SCORE) {
                 printf("잘못된 값입니다. 10에서 100 사이의 점수를 입력하세요.\n");
             }
@@ -180,12 +179,15 @@ void displayFinalSelection(const Candidate candidates[]) {
     printf("=======================================\n");
 
     // 총점 내림차순 정렬
+    Candidate sortedCandidates[CANDIDATES];
+    memcpy(sortedCandidates, candidates, sizeof(sortedCandidates));  // candidates 배열 복사
+
     for (int i = 0; i < CANDIDATES - 1; i++) {
         for (int j = i + 1; j < CANDIDATES; j++) {
-            if (candidates[i].totalScore < candidates[j].totalScore) {
-                Candidate temp = candidates[i];
-                candidates[i] = candidates[j];
-                candidates[j] = temp;
+            if (sortedCandidates[i].totalScore < sortedCandidates[j].totalScore) {
+                Candidate temp = sortedCandidates[i];
+                sortedCandidates[i] = sortedCandidates[j];
+                sortedCandidates[j] = temp;
             }
         }
     }
@@ -195,6 +197,6 @@ void displayFinalSelection(const Candidate candidates[]) {
     printf("#######################################\n");
 
     for (int i = 0; i < 4; i++) {
-        printf("%d. %s\n", i + 1, candidates[i].name);
+        printf("%d. %s\n", i + 1, sortedCandidates[i].name);
     }
 }
